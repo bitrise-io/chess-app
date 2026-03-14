@@ -88,6 +88,7 @@ struct GameControlsView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+.labelsHidden()
             }
         }
     }
