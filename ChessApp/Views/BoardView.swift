@@ -68,7 +68,7 @@ struct BoardView: View {
                             isInCheck: isKingInCheck
                         )
                         .gesture(
-                            DragGesture(minimumDistance: 5, coordinateSpace: .global)
+                            DragGesture(minimumDistance: 5, coordinateSpace: .named("board"))
                                 .onChanged { value in
                                     handleDragChanged(value, from: pos, squareSize: squareSize)
                                 }
@@ -83,6 +83,7 @@ struct BoardView: View {
                 }
             }
         }
+        .coordinateSpace(name: "board")
     }
 
     @ViewBuilder

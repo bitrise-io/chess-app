@@ -98,6 +98,8 @@ struct GameState: Codable {
         moveHistory = []
         positionHistory = []
         result = .ongoing
+        // Record initial position so threefold repetition triggers at 3 occurrences (not 4)
+        positionHistory.append(snapshot)
     }
 
     // MARK: - State Snapshot

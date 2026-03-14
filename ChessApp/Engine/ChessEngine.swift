@@ -374,10 +374,23 @@ class ChessEngine {
         if whitePieces.count == 1 && blackPieces.count <= 2 && blackMinors.count == blackPieces.count - 1 && whitePieces[0] == .king { return true }
         if blackPieces.count == 1 && whitePieces.count <= 2 && whiteMinors.count == whitePieces.count - 1 && blackPieces[0] == .king { return true }
 
-        // King + bishop vs King + bishop (same color squares) - simplified
-        if whitePieces.sorted(by: { $0.rawValue < $1.rawValue }) == [.bishop, .king] &&
-           blackPieces.sorted(by: { $0.rawValue < $1.rawValue }) == [.bishop, .king] {
-            return true
+        // King + bishop vs King + bishop: only insufficient if both bishops on same color squares
+        if whitePieces.sorted(by: { $0.rawValue < $1.rawValue }) == [.king, .bishop] &&
+           blackPieces.sorted(by: { $0.rawValue < $1.rawValue }) == [.king, .bishop] {
+            var whiteBishopSquareColor: Int? = nil
+            var blackBishopSquareColor: Int? = nil
+            for rank in 0..<8 {
+                for file in 0..<8 {
+                    if let piece = state.board[rank, file], piece.type == .bishop {
+                        let squareColor = (rank + file) % 2
+                        if piece.color == .white { whiteBishopSquareColor = squareColor }
+                        else { blackBishopSquareColor = squareColor }
+                    }
+                }
+            }
+            if let wc = whiteBishopSquareColor, let bc = blackBishopSquareColor, wc == bc {
+                return true
+            }
         }
 
         return false
@@ -422,8 +435,8 @@ class ChessEngine {
 
         var bestMove: Move? = nil
         var bestScore = isMaximizing ? Int.min : Int.max
-        let alpha = Int.min
-        let beta = Int.max
+        var alpha = Int.min
+        var beta = Int.max
 
         let moves = generateLegalMoves(for: color, in: state)
         if moves.isEmpty { return nil }
@@ -442,11 +455,15 @@ class ChessEngine {
                     bestScore = score
                     bestMove = move
                 }
+                alpha = max(alpha, score)
+                if beta <= alpha { break }
             } else {
                 if score < bestScore {
                     bestScore = score
                     bestMove = move
                 }
+                beta = min(beta, score)
+                if beta <= alpha { break }
             }
         }
 
